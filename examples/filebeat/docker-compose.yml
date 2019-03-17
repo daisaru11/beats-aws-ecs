@@ -1,0 +1,31 @@
+version: '3.5'
+services:
+  filebeat:
+    image: daisaru11/beats-aws-ecs
+    environment:
+      ECS_CONTAINER_METADATA_URI: 'http://metadata-mock:3000/'
+    volumes:
+      - "./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
+      - "nginx-log:/var/log/nginx"
+    command: filebeat -e -d "*" --plugin beats-aws-ecs.so
+    depends_on:
+      - metadata-mock
+
+  metadata-mock:
+    image: node:8.15-alpine
+    command: sh -c "npm install -g json-server && json-server --host 0.0.0.0 --watch /mock.json"
+    expose:
+      - 3000
+    volumes:
+      - "./mock.json:/mock.json"
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - "nginx-log:/var/log/nginx"
+
+volumes:
+  nginx-log:

@@ -1,0 +1,15 @@
+filebeat.inputs:
+- type: log
+  paths:
+    - /var/log/nginx/access.log
+
+processors:
+  - add_aws_ecs_task_metadata:
+      endpoint_max_retries: 30
+      indexers:
+        - container_name:
+      matchers:
+        - container_name:
+            name: nginx-curl
+output.console:
+  pretty: true
