@@ -5,27 +5,42 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"time"
+
+	"github.com/elastic/beats/libbeat/logp"
 )
 
 type TaskMetadataClient struct {
-	client                 *http.Client
-	taskMetadataEndpoint   string
-	maxRetries             int
-	durationBetweenRetries time.Duration
+	client *http.Client
+	config TaskMetadataClientConfig
 }
 
-func NewTaskMetadataClient(c *http.Client) *TaskMetadataClient {
+type TaskMetadataClientConfig struct {
+	TaskMetadataEndpoint   string
+	MaxRetries             int
+	DurationBetweenRetries time.Duration
+}
+
+func NewTaskMetadataClient(c *http.Client, cfg TaskMetadataClientConfig) *TaskMetadataClient {
 	return &TaskMetadataClient{
-		client:                 c,
-		taskMetadataEndpoint:   os.Getenv("ECS_CONTAINER_METADATA_URI") + "/task",
-		maxRetries:             3,
-		durationBetweenRetries: 1 * time.Second,
+		client: c,
+		config: cfg,
+	}
+}
+
+func GetDefaultConfig() TaskMetadataClientConfig {
+	taskMetadataEndpoint := strings.TrimRight(os.Getenv("ECS_CONTAINER_METADATA_URI"), "/") + "/task"
+
+	return TaskMetadataClientConfig{
+		TaskMetadataEndpoint:   taskMetadataEndpoint,
+		MaxRetries:             3,
+		DurationBetweenRetries: 1 * time.Second,
 	}
 }
 
 func (c *TaskMetadataClient) GetTaskMetadata() (*TaskMetadata, error) {
-	data, err := c.request(c.taskMetadataEndpoint)
+	data, err := c.request(c.config.TaskMetadataEndpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -41,13 +56,13 @@ func (c *TaskMetadataClient) GetTaskMetadata() (*TaskMetadata, error) {
 func (c *TaskMetadataClient) request(endpoint string) ([]byte, error) {
 	var resp []byte
 	var err error
-	for i := 0; i < c.maxRetries; i++ {
+	for i := 0; i < c.config.MaxRetries; i++ {
 		resp, err = c.requestOnce(endpoint)
 		if err == nil {
 			return resp, nil
 		}
-		fmt.Fprintf(os.Stderr, "Attempt [%d/%d]: unable to get metadata response for from '%s': %v", i, c.maxRetries, endpoint, err)
-		time.Sleep(c.durationBetweenRetries)
+		logp.Warn("Attempt [%d/%d]: unable to get metadata response for from '%s': %v", i, c.config.MaxRetries, endpoint, err)
+		time.Sleep(c.config.DurationBetweenRetries)
 	}
 
 	return nil, err
