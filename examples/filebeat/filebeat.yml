@@ -10,6 +10,6 @@ processors:
         - container_name:
       matchers:
         - container_name:
-            name: nginx-curl
+            name: test-nginx
 output.console:
   pretty: true

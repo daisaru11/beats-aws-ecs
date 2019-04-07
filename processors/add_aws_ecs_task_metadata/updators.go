@@ -25,7 +25,7 @@ func NewOnceAtStartupUpdater(
 }
 
 func (u *OnceAtStartupUpdater) Run() {
-	logp.Debug("add_aws_ecs_task_metadata", "starting to fetch ecs task metadata")
+	logp.Debug("add_aws_ecs_task_metadata", "Starting to fetch ecs task metadata")
 	task, err := u.client.GetTaskMetadata()
 
 	if err != nil {
@@ -33,6 +33,6 @@ func (u *OnceAtStartupUpdater) Run() {
 		return
 	}
 
-	logp.Debug("add_aws_ecs_task_metadata", "update task metadata: %v", task)
+	logp.Debug("add_aws_ecs_task_metadata", "Update task metadata: %v", task)
 	u.updateHandler(task)
 }
