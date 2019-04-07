@@ -1,4 +1,4 @@
-GO_VERSION ?= "1.12.1"
+GO_VERSION ?= "1.12.2"
 GO_PLATFORM ?= "linux-amd64"
 BEATS_VERSION ?= "6.6.2"
 BEAT_NAME ?= "filebeat"
