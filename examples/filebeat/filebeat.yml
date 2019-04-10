@@ -5,6 +5,7 @@ filebeat.inputs:
 
 processors:
   - add_aws_ecs_task_metadata:
+      #endpoint_version: v2
       endpoint_max_retries: 30
       indexers:
         - container_name:

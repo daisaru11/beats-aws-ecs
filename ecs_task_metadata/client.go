@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/elastic/beats/libbeat/logp"
@@ -13,34 +11,42 @@ import (
 
 type TaskMetadataClient struct {
 	client *http.Client
-	config TaskMetadataClientConfig
+
+	endpointBaseUrl        string
+	endpointVersion        EndpointVersion
+	maxRetries             int
+	durationBetweenRetries time.Duration
 }
 
 type TaskMetadataClientConfig struct {
-	TaskMetadataEndpoint   string
+	EndpointBaseUrl        string
+	EndpointVersion        EndpointVersion
 	MaxRetries             int
 	DurationBetweenRetries time.Duration
 }
 
 func NewTaskMetadataClient(c *http.Client, cfg TaskMetadataClientConfig) *TaskMetadataClient {
 	return &TaskMetadataClient{
-		client: c,
-		config: cfg,
+		client:                 c,
+		endpointBaseUrl:        cfg.EndpointBaseUrl,
+		endpointVersion:        cfg.EndpointVersion,
+		maxRetries:             cfg.MaxRetries,
+		durationBetweenRetries: cfg.DurationBetweenRetries,
 	}
 }
 
-func GetDefaultConfig() TaskMetadataClientConfig {
-	taskMetadataEndpoint := strings.TrimRight(os.Getenv("ECS_CONTAINER_METADATA_URI"), "/") + "/task"
-
+func GetDefaultConfig(v EndpointVersion) TaskMetadataClientConfig {
 	return TaskMetadataClientConfig{
-		TaskMetadataEndpoint:   taskMetadataEndpoint,
+		EndpointVersion:        v,
+		EndpointBaseUrl:        GetDefaultEndpointBaseUrl(v),
 		MaxRetries:             3,
 		DurationBetweenRetries: 1 * time.Second,
 	}
 }
 
 func (c *TaskMetadataClient) GetTaskMetadata() (*TaskMetadata, error) {
-	data, err := c.request(c.config.TaskMetadataEndpoint)
+	endpoint := GetTaskMetadataEndpointPath(c.endpointVersion, c.endpointBaseUrl)
+	data, err := c.request(endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -56,13 +62,13 @@ func (c *TaskMetadataClient) GetTaskMetadata() (*TaskMetadata, error) {
 func (c *TaskMetadataClient) request(endpoint string) ([]byte, error) {
 	var resp []byte
 	var err error
-	for i := 0; i < c.config.MaxRetries; i++ {
+	for i := 0; i < c.maxRetries; i++ {
 		resp, err = c.requestOnce(endpoint)
 		if err == nil {
 			return resp, nil
 		}
-		logp.Warn("Attempt [%d/%d]: unable to get metadata response for from '%s': %v", i, c.config.MaxRetries, endpoint, err)
-		time.Sleep(c.config.DurationBetweenRetries)
+		logp.Warn("Attempt [%d/%d]: unable to get metadata response for from '%s': %v", i, c.maxRetries, endpoint, err)
+		time.Sleep(c.durationBetweenRetries)
 	}
 
 	return nil, err

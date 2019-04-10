@@ -49,8 +49,17 @@ func NewAddAwsEcsTaskMetadata(c *common.Config) (processors.Processor, error) {
 			}).DialContext,
 		},
 	}
-	clientCfg := ecs_task_metadata.GetDefaultConfig()
-	clientCfg.TaskMetadataEndpoint = config.EcsTaskMetadataUri
+
+	endpointVersion := ecs_task_metadata.EndpointV3
+	if config.EndpointVersion == "v2" {
+		endpointVersion = ecs_task_metadata.EndpointV2
+	}
+
+	clientCfg := ecs_task_metadata.GetDefaultConfig(endpointVersion)
+	if config.EndpointBaseUrl != "" {
+		clientCfg.EndpointBaseUrl = config.EndpointBaseUrl
+	}
+
 	clientCfg.MaxRetries = config.EndpointMaxRetries
 
 	client := ecs_task_metadata.NewTaskMetadataClient(&hc, clientCfg)
