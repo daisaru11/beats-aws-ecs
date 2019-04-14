@@ -1,6 +1,6 @@
 GO_VERSION ?= "1.12.2"
 GO_PLATFORM ?= "linux-amd64"
-BEATS_VERSION ?= "6.6.2"
+BEATS_VERSION ?= "7.0.0"
 BEAT_NAME ?= "filebeat"
 BEAT_DOCKER_IMAGE = "docker.elastic.co/beats/${BEAT_NAME}:${BEATS_VERSION}"
 BEATS_AWS_ECS_VERSION ?= "0.1.0"

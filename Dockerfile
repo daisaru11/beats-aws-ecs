@@ -13,7 +13,7 @@ ARG BEAT_NAME
 
 RUN git clone --depth=1 -b v${BEATS_VERSION} https://github.com/elastic/beats /go/src/github.com/elastic/beats
 WORKDIR /go/src/github.com/elastic/beats/${BEAT_NAME}
-RUN make 
+RUN make ${BEAT_NAME}
 RUN mkdir -p target \ 
  && mv ${BEAT_NAME} "target/${BEAT_NAME}-${BEATS_VERSION}-go${GO_VERSION}-${GO_PLATFORM}"
 
