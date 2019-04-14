@@ -9,11 +9,10 @@ services:
 
   nginx:
     container_name: test-nginx
-    build:
-      context: .
-      dockerfile: nginx.Dockerfile
+    image: nginx:alpine
     ports:
       - "8080:80"
+    command: /bin/sh -c "rm /var/log/nginx/*.log && exec nginx -g 'daemon off;'"
     volumes:
       - "nginx-log:/var/log/nginx"
 
