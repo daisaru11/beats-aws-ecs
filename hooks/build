@@ -1,0 +1,4 @@
+#!/bin/bash
+set -eu
+
+make IMAGE_NAME=$IMAGE_NAME

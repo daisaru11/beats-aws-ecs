@@ -1,3 +1,4 @@
+IMAGE_NAME ?= "daisaru11/beats-aws-ecs"
 GO_VERSION ?= "1.12.2"
 GO_PLATFORM ?= "linux-amd64"
 BEATS_VERSION ?= "7.0.0"
@@ -7,7 +8,7 @@ BEATS_AWS_ECS_VERSION ?= "0.1.0"
 
 build:
 	docker build \
-		-t daisaru11/beats-aws-ecs \
+		-t $(IMAGE_NAME) \
 		--build-arg GO_VERSION=$(GO_VERSION) \
 		--build-arg GO_PLATFORM=$(GO_PLATFORM) \
 		--build-arg BEATS_VERSION=$(BEATS_VERSION) \
