@@ -45,13 +45,13 @@ type HealthStatus struct {
 }
 
 type Limits struct {
-	CPU    uint
-	Memory uint
+	CPU    float64 `json:",omitempty"`
+	Memory int64   `json:",omitempty"`
 }
 
 type Port struct {
-	ContainerPort uint16
-	Protocol      string
+	ContainerPort uint16 `json:",omitempty"`
+	Protocol      string `json:",omitempty"`
 	HostPort      uint16 `json:",omitempty"`
 }
 
