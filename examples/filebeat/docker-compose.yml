@@ -5,7 +5,7 @@ services:
     volumes:
       - "./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
       - "nginx-log:/var/log/nginx"
-    command: filebeat -e -d "*" --plugin beats-aws-ecs.so
+    command: filebeat -e -d "*" --plugin beats-aws-ecs.so -modules=nginx -E "output.console.pretty=true"
 
   nginx:
     container_name: test-nginx

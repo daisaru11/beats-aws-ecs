@@ -1,33 +1,34 @@
 version: "2"
 
 networks:
-    credentials_network:
-        driver: bridge
-        ipam:
-            config:
-                - subnet: "169.254.170.0/24"
-                  gateway: 169.254.170.1
+  credentials_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "169.254.170.0/24"
+          gateway: 169.254.170.1
 
 services:
-    ecs-local-endpoints:
-        image: amazon/amazon-ecs-local-container-endpoints
-        volumes:
-          - /var/run:/var/run
-          - $HOME/.aws/:/home/.aws/
-        environment:
-          HOME: "/home"
-          AWS_PROFILE: "default"
-        networks:
-            credentials_network:
-                ipv4_address: "169.254.170.2"
-                
-    filebeat:
-        depends_on:
-            - ecs-local-endpoints
-        networks:
-            credentials_network:
-                ipv4_address: "169.254.170.3"
-        environment:
-          AWS_DEFAULT_REGION: "us-east-1"
-          AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: "/creds"
-          ECS_CONTAINER_METADATA_URI: "http://169.254.170.2/v3"
+  ecs-local-endpoints:
+    image: amazon/amazon-ecs-local-container-endpoints
+    volumes:
+      - /var/run:/var/run
+      - $HOME/.aws/:/home/.aws/
+    environment:
+      HOME: "/home"
+      AWS_PROFILE: "default"
+    networks:
+      credentials_network:
+        ipv4_address: "169.254.170.2"
+
+  filebeat:
+    depends_on:
+      - ecs-local-endpoints
+    networks:
+      credentials_network:
+        ipv4_address: "169.254.170.3"
+      default:
+    environment:
+      AWS_DEFAULT_REGION: "us-east-1"
+      AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: "/creds"
+      ECS_CONTAINER_METADATA_URI: "http://169.254.170.2/v3"

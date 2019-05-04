@@ -1,0 +1,19 @@
+version: "2"
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.1
+    # volumes:
+    #   - ./volumes/elasticsearch/data:/usr/share/elasticsearch/data
+    #   - ./volumes/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.0.1
+    ports:
+      - 5601:5601
+
+  filebeat:
+    command: filebeat -e -d "*" --plugin beats-aws-ecs.so -modules=nginx -E "output.elasticsearch.hosts=['http://elasticsearch:9200']"
