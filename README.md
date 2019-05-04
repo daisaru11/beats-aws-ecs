@@ -1,7 +1,5 @@
 ## Beats plugin for AWS ECS
 
-Note: This is still a work in progress.
-
 [Beats](https://github.com/elastic/beats) processor plugin for AWS ECS Task.
 
 This plugin appends AWS ECS Task and container metadata to beats events.
@@ -28,6 +26,12 @@ This plugin appends AWS ECS Task and container metadata to beats events.
   ...
 }
 ```
+
+- Supported beats
+  - Filebeat
+- Supported endpoint versions of AWS ECS Task Metadata
+  - v2
+  - v3
 
 ## Usage
 
